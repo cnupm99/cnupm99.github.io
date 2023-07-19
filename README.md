@@ -1,17 +1,663 @@
-# cnupm99.github.io
+# Отправка сообщений
 
-## Nisi officia
+Чтобы отправить сообщение через REST API, нужно сформировать корректный POST-запрос на указанный URL подключения. Вся информация о сообщении находится в теле запроса, в виде JSON-объекта.
 
-Nisi officia consequat ut ut dolor dolore aute magna ut cillum in ut nostrud consequat anim id anim aliquip et velit sunt velit velit labore duis minim non ea incididunt quis ut enim magna ut ullamco sit eiusmod eiusmod in dolore reprehenderit ullamco incididunt ad ut ut id voluptate amet eiusmod ut adipisicing veniam voluptate nisi non cupidatat eiusmod eiusmod cupidatat excepteur aute anim id cupidatat ut sint voluptate amet veniam incididunt aliqua do est reprehenderit magna ad et exercitation dolor magna quis velit nulla aliqua mollit eiusmod irure quis anim consectetur dolore nulla ut ut dolor ad sint labore ea in qui sed excepteur non in dolore do cillum commodo in in dolore id incididunt et elit deserunt deserunt voluptate labore fugiat exercitation duis in magna occaecat mollit sit nisi nulla ut in minim ullamco quis ullamco labore dolore cupidatat duis ullamco cupidatat aliquip dolor consequat voluptate consectetur ad dolore laboris magna est dolore qui do adipisicing in incididunt.
+Все параметры, содержащиеся в JSON, можно условно разбить на следующие группы:
 
-## Amet magna
+| Группа параметров | Обязательность |
+| --- | --- |
+| Параметры для авторизации запроса | Да |
+| Основные параметры запроса | Да |
+| Расписание отправки сообщения | Нет |
+| Дополнительные настройки запроса | Нет |
+| Статистические данные | Нет |
+| Данные сообщения | Да |
+| Данные о каскадных сообщениях | Нет |
 
-Amet magna duis amet in esse fugiat ut dolore tempor veniam fugiat ullamco ut commodo ea sunt incididunt occaecat esse commodo amet ut sed occaecat labore do in elit nulla eu sunt aute non in quis aliquip laborum veniam cillum velit commodo cupidatat sint eiusmod anim deserunt ex labore cupidatat nulla sint cillum ad incididunt laboris enim sunt amet ad aute dolore sit voluptate non cillum velit minim sed dolore quis fugiat labore occaecat elit sunt id voluptate laborum in aliqua ex nulla enim nostrud duis quis ad minim dolore ut nostrud aliquip et incididunt sit dolor amet laboris enim veniam veniam ullamco adipisicing duis sunt cillum duis irure eu sed dolor laborum amet voluptate aliqua in in anim fugiat enim reprehenderit labore voluptate dolore sint amet ad nulla sed id laborum in mollit in eiusmod laborum sit duis aliquip et tempor deserunt aliquip adipisicing eu officia sint proident nulla sint sint quis qui ullamco excepteur cupidatat eiusmod ut ea commodo consequat tempor in anim tempor sed duis laborum duis id id officia et velit est dolor dolor do ut in exercitation tempor aute reprehenderit et adipisicing eu mollit esse pariatur elit incididunt est adipisicing sunt pariatur in velit commodo occaecat officia duis non elit dolor dolor sunt incididunt consectetur adipisicing cillum velit do officia reprehenderit cillum culpa consequat.
+Пример запроса, содержащего все доступные для SMS-сообщения параметры (без каскадной доотправки):
 
-### Lorem ipsum
+```json
+{
+	"login": "login",
+	"password": "password",
 
-Lorem ipsum id velit excepteur laboris cillum ex officia quis et dolor exercitation quis voluptate mollit minim voluptate veniam ullamco consectetur dolore consectetur nulla tempor quis amet eiusmod irure ad occaecat sit deserunt ut magna nisi magna adipisicing laborum adipisicing sint dolor irure aliquip id officia ut labore est dolore in qui sit laborum ad do cupidatat id quis occaecat labore non non tempor voluptate tempor in culpa sunt sunt officia dolore incididunt reprehenderit amet incididunt sit nisi sunt in aliquip quis dolor eu eu ad in sit dolore magna pariatur enim est ea voluptate non laborum culpa consectetur adipisicing duis nulla in veniam aliqua eu non incididunt qui ut voluptate veniam enim sed ex eu elit officia velit elit sit ullamco labore fugiat non voluptate fugiat pariatur fugiat sit excepteur consectetur nulla elit consequat exercitation consequat ut nostrud consequat est et eu consequat dolore exercitation cupidatat amet reprehenderit elit dolore qui esse qui est eu proident commodo id sed proident voluptate anim adipisicing amet enim ut laborum dolor officia ut dolor deserunt incididunt commodo occaecat.
+	"destAddr": "+7-921-456-78-90",
 
-### In cillum magna
+	"scheduleInfo": {
+		"timeBegin": "10:00",
+		"timeEnd": "17:00",
+		"weekdaysSchedule": "12345",
+		"deadline": "2023-07-10T17:00:00+0300"
+	}
+	"useTimeDiff": true,
 
-In cillum magna sint reprehenderit irure consequat velit dolor duis sed eiusmod et dolor do labore sit cillum laboris fugiat labore dolore do commodo ad sit laborum mollit dolore culpa magna amet ex anim exercitation deserunt commodo ut ut cillum nostrud et irure veniam reprehenderit aliqua pariatur eiusmod elit quis cupidatat aute ut do quis id enim in nisi nulla dolor do magna enim nisi incididunt labore sed laboris laboris do id fugiat tempor et sint ad sed tempor nulla ea quis dolor officia in id quis velit excepteur in consequat sed ut et qui occaecat velit duis cupidatat laborum consectetur laboris laborum laborum quis incididunt excepteur sint et id ut do do dolor in enim ullamco minim in aute proident consequat in magna laborum reprehenderit est id sint ex dolor qui minim in in pariatur nisi minim labore ullamco fugiat in duis aute adipisicing non occaecat dolore sunt commodo dolor esse mollit dolor dolor nulla tempor in in qui exercitation nulla ea ad consequat fugiat velit laborum aute sed exercitation irure anim pariatur nulla consequat deserunt nostrud nulla culpa in.
+	"shortenLinks": true,
+	"registeredDelivery": 2,
+	"notifyUrl": "https://partner.url/dlr",
+
+	"id": "id12345",
+	"extraParam": "department=spam,title=test",
+
+	"message": {
+		"type": "SMS",
+		"data": {
+			"text": "Hello, world!",
+			"serviceNumber": "Company",
+			"ttl": 60,
+			"ttlUnit": "MINUTES"
+		}
+	}
+}
+```
+
+## Авторизация
+
+Для авторизации используются два **обязательных** строковых параметра: **login** и **password**. Значения этих параметров сообщаются партнеру для каждого отдельного подключения.
+
+Пример использования параметров:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+
+	// прочие данные запроса
+}
+```
+
+## Основные данные запроса
+
+**Обязательный** строковый параметр **destAddr** должен содержать телефон абонента, которому отправляется сообщение.
+
+Телефон допускается передавать в международном формате, либо в формате номеров РФ, используя при этом произвольные разделители. Примеры корректных значений параметра:
+
+- “+79214567890”,
+- “89214567890”,
+- “+7-921-456-78-90”.
+
+Пример использования параметра в запросе:
+
+```json
+{
+	// прочие данные запроса
+
+	"destAddr": "+7-921-456-78-90",
+
+	// прочие параметры запроса
+}
+```
+
+> В случае **Push-сообщений** абонент может быть идентифицирован параметром **externalUserId**, переданным в объекте **message**. В таком случае параметр **destAddr** будет необязательным.
+> 
+
+## Расписание отправки сообщения
+
+Необязательный параметр **useTimeDiff** может принимать значения true или false. Если параметр равен true, то при отправке сообщения учитывается локальное время абонента. По умолчанию эта опция отключена (false).
+
+> Локальное время определяется по только для регионов РФ и зависит от того региона, где зарегистрирован номер телефона абонента. Фактическое местоположение абонента не отслеживается и не учитывается.
+> 
+
+Непосредственно расписание отправки сообщения передается с помощью необязательного объекта **scheduleInfo**. Если объект не передан в запросе, сообщение отправляется сразу же, в момент его обработки платформой.
+
+Необязательные параметры, содержащиеся в объекте **scheduleInfo**:
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| timeBegin | Строка | Время начала для интервала отправки в формате “ЧЧ:ММ” |
+| timeEnd | Строка | Время окончания для интервала отправки в формате “ЧЧ:ММ” |
+| weekdaysSchedule | Строка | Допустимые дни недели для отправки, переданные набором цифр, где “1” — это понедельник, а “7” — воскресенье |
+| deadline | Строка | Дата и время, до которого сообщение должно быть отправлено, в формате "ГГГГ-ММ-ЧЧTчч:мм:сс+пппп” |
+
+Пример использования расписания отправки в запросе:
+
+```json
+{
+	// прочие параметры запроса	
+
+	"useTimeDiff": true,
+	"scheduleInfo": {
+		"timeBegin": "10:00",
+		"timeEnd": "19:00",
+		"weekdaysSchedule": "12345",
+		"deadline": "2023-07-10T17:00:00+0300"
+	},
+
+	// прочие параметры запроса
+}
+```
+
+## Дополнительные настройки запроса
+
+Дополнительные настройки включают в себя следующие необязательные параметры:
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| shortenLinks | true/false | Требуется ли сокращение ссылок в тексте SMS-сообщения. Данный сервис подключается для партнера отдельно. |
+| registeredDelivery | Число от 0 до 2 | 0 — не передавать статусы; 1 — передавать все статусы (по умолчанию); 2 — передать только статус “не доставлено” |
+| notifyUrl | Строка | URL, используемый для получения статуса данного сообщения (только протокол https) |
+
+Пример использования дополнительных параметров запроса:
+
+```json
+{
+	// прочие параметры запроса
+	
+	"shortenLinks": true,
+	"registeredDelivery": 2,
+	"notifyUrl": "https://url/dlr.php"
+
+	// прочие параметры запроса
+}
+```
+
+## Статистические данные
+
+Для передачи статистических данных можно использовать два необязательных параметра:
+
+- **id** — уникальный строковый идентификатор сообщения на стороне партнера;
+- **extraParam** — строковый параметр, содержащий произвольные данные партнера в виде набора “param1=value1,param2=value2,…”.
+
+Параметр **id** может использоваться партнером для идентификации сообщения на своей стороне. Если параметр **id** передан в запросе, то он же вернется партнеру в уведомлениях о статусах сообщения. Кроме того, параметр **id** может опционально использоваться для фильтрации дубликатов сообщений.
+
+Данные, переданные в параметре **extraParam** могут быть использованы для отображения в хронологических отчетах для дальнейшего анализа на стороне партнера. Эти данные могут, например, содержать наименование отдела/департамента, отправившего сообщение; название акции, в рамках которой отправлено сообщение и тому подобную информацию.
+
+> Если значение параметра должно содержать запятую, ее необходимо удвоить. Например: **extraParam: “logins=first,,second”.**
+> 
+
+Пример использования статистических параметров запроса:
+
+```json
+{
+	// прочие параметры запроса
+
+	"id": "id12345",
+	"extraParam": "department=spam,title=test",
+
+	// прочие параметры запроса
+}
+```
+
+## Данные сообщения
+
+### Общие параметры для всех типов сообщений
+
+Данные сообщения передаются в **обязательном** объекте **message**.
+
+Объект **message** содержит два **обязательных** параметра:
+
+- **type** — тип сообщения;
+- **data** — непосредственно данные сообщения.
+
+Тип сообщения передается в строковом виде, значение должно быть одним из: **SMS, VIBER, VK, PUSH, WHATSAPP, CARDSMOBILE, FLASHINGCALL**. Указанный тип сообщения должен быть в явном виде разрешен для передачи через данное подключение.
+
+Данные, содержащиеся в объекте **data**, отличаются для разных типов сообщений.
+
+Общие параметры из объекта **data**, характерные для большинства типов сообщений:
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| serviceNumber | Строка | Сервисное имя, используемое для отправки сообщения |
+| ttl | Число | Время жизни сообщения |
+| ttlUnit | Строка | Единица измерения для времени жизни, одно из: SECONDS, MINUTES (по-умолчанию), HOURS |
+
+Общие данные могут быть заданы в статичном виде для конкретного подключения. В таком случае их необязательно передавать в запросе.
+
+Пример использования общих параметров сообщения:
+
+```json
+{
+	// прочие параметры запроса
+
+	"message": {
+		"type": "PUSH",
+		"data": {
+			"serviceNumber": "Example",
+			"ttl": 60,
+			"ttlUnit": "SECONDS",
+
+			// прочие параметры сообщения
+		}
+	},
+
+	// прочие параметры запроса
+}
+```
+
+### Время жизни для различных типов сообщений
+
+Допустимые диапазоны времени жизни для различных типов сообщений:
+
+| Тип сообщения | Время жизни | Единица измерения |
+| --- | --- | --- |
+| SMS | 1 — 2880 | MINUTES |
+| Viber | 30 — 86400 | SECONDS |
+| WhatsApp | 1 — 10080 | MINUTES (округляется до суток) |
+| VK | 60 — 86400 | SECONDS |
+| Push | 30 — 86400 | SECONDS |
+| FlashingCall | 1 — 5 | MINUTES |
+| CardsMobile | 30 — 86400 | SECONDS |
+
+Время жизни сообщения начинает отсчет с момента фактической отправки сообщения поставщику услуг (оператору).
+
+### Отправка SMS-, FLASHINGCALL- и VK-сообщений
+
+Текст сообщения передается в обязательном параметре **text** объекта **message/data**. Текст сообщения может иметь длину не более 2000 символов.
+
+> В случае VK-сообщений текст сообщения должен пройти обязательную премодерацию!
+> 
+
+Для FLASHINGCALL-сообщений текст должен обязательно содержать четырехзначный числовой код.
+
+> Примеры корректных текстов для FLASHINGCALL-сообщения: “1234”, “Код: 1234”, “Используйте код 1234 для авторизации!”.
+> 
+
+Пример отправки SMS-сообщения:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "SMS",
+		"data": {
+			"text": "Message!",
+			"serviceNumber": "Example"
+		}
+	}
+}
+```
+
+Пример отправки VK-сообщения:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "VK",
+		"data": {
+			"text": "Accepted message!",
+			"serviceNumber": "Example"
+		}
+	}
+}
+```
+
+Пример отправки FlashingCall-сообщения:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "FLASHINGCALL",
+		"data": {
+			"text": "Код: 1234"
+		}
+	}
+}
+```
+
+> Особенностью FLASHINGCALL-сообщений является то, что для них необязателен параметр **serviceNumber**.
+> 
+
+### Отправка Viber-сообщений
+
+Контент Viber-сообщения описывается в параметре **instantContent** объекта **message/data**. Параметр **instantContent** представляет из себя объект, содержащий два обязательных поля:
+
+- **type** — тип контента;
+- **data** — объект, содержащий данные контента.
+
+Параметр type может принимать одно из значений:
+
+| type | Описание |
+| --- | --- |
+| TEXT | Сообщение, содержащее только текст |
+| IMAGE_URL | Сообщение с текстом и изображением |
+| BUTTON | Сообщение с текстом, изображением и кнопкой |
+
+В зависимости от типа контента отличается набор параметров, передаваемый в объекте **instantContent/data**. Описание параметров:
+
+| Параметр | Тип | Тип контента | Описание |
+| --- | --- | --- | --- |
+| text | Строка | TEXT, IMAGE_URL, BUTTON | Текст сообщения, до 1000 символов |
+| imageURL | Строка | IMAGE_URL, BUTTON | Ссылка на изображение в формате jpg, jpeg или png |
+| caption | Строка | BUTTON | Наименование кнопки, до 30 символов |
+| action | Строка | BUTTON | Ссылка для кнопки. До 2048 символов, должна начинаться с “http://”, “https://”, “viber://”, “mailto:” или “tel:”. |
+
+Пример отправки Viber-сообщения, содержащего только текст:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "VIBER",
+		"data": {
+			"serviceNumber": "Example",
+			"instantContent": {
+				"type": "TEXT",
+				"data": {
+					"text": "Message!"
+				}
+			}
+		}
+	}
+}
+```
+
+Пример отправки Viber-сообщения, содержащего текст и картинку:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "VIBER",
+		"data": {
+			"serviceNumber": "Example",
+			"instantContent": {
+				"type": "IMAGE_URL",
+				"data": {
+					"text": "Message!",
+					"imageURL": "https://partner.url/image.jpg"
+				}
+			}
+		}
+	}
+}
+```
+
+Пример отправки Viber-сообщения, содержащего текст, картинку и кнопку:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "VIBER",
+		"data": {
+			"serviceNumber": "Example",
+			"instantContent": {
+				"type": "BUTTON",
+				"data": {
+					"text": "Message!",
+					"imageURL": "https://partner.url/image.jpg",
+					"caption": "Button",
+					"action": "https://partner.url/click"
+				}
+			}
+		}
+	}
+}
+```
+
+### Отправка WhatsApp-сообщений
+
+Контент WhatsApp-сообщения описывается в параметре **instantContent** объекта **message/data**. Параметр **instantContent** представляет из себя объект, содержащий два обязательных поля:
+
+- **type** — тип контента;
+- **data** — объект, содержащий данные контента.
+
+Параметр type может принимать одно из значений:
+
+| type | Описание |
+| --- | --- |
+| TEXT | Сообщение, содержащее только текст |
+| IMAGE_URL | Сообщение с текстом и изображением |
+
+В зависимости от типа контента отличается набор параметров, передаваемый в объекте **instantContent/data**. Описание параметров:
+
+| Параметр | Тип | Тип контента | Описание |
+| --- | --- | --- | --- |
+| text | Строка | TEXT, IMAGE_URL | Текст сообщения, до 1000 символов |
+| imageURL | Строка | IMAGE_URL | Ссылка на изображение в формате jpg или png |
+
+Пример отправки WhatsApp-сообщения, содержащего только текст:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "WHATSAPP",
+		"data": {
+			"serviceNumber": "Example",
+			"instantContent": {
+				"type": "TEXT",
+				"data": {
+					"text": "Message!"
+				}
+			}
+		}
+	}
+}
+```
+
+Пример отправки WhatsApp-сообщения, содержащего текст и картинку:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "WHATSAPP",
+		"data": {
+			"serviceNumber": "Example",
+			"instantContent": {
+				"type": "IMAGE_URL",
+				"data": {
+					"text": "Message!",
+					"imageURL": "https://partner.url/image.jpg"
+				}
+			}
+		}
+	}
+}
+```
+
+### Отправка Push-сообщений
+
+Данные для Push-сообщений содержатся в следующих полях объекта **message/data**:
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| text | Строка | Текст Push-уведомления, до 1000 символов |
+| title | Строка | Заголовок Push-уведомления, до 80 символов |
+| externalUserId | Строка | Идентификатор пользователя, используемый для отправки Push-уведомления. Может представлять из себя логин, UUID или email. В случае, если передан этот параметр, допускается не указывать телефон абонента в параметре destAddr. |
+| primaryOn | true/false | Отправлять сообщение на основную установку (true) приложения или на все (false) его установки |
+| deviceSubscriptions | Массив строк | Набор подписок в приложении, необходимых для получения уведомления |
+| customPayload | JSON | Произвольные данные, передаваемые в приложение |
+| callbackData | JSON | Произвольные данные, необходимые для сбора статистики |
+
+Дополнительный контент Push-сообщения может включать в себя: изображения, кнопки, произвольный html-контент.
+
+> Html-контент передается в виде ссылки на страницу и отображается, как WebView.
+> 
+
+Параметры контента передаются в объекте **message/data/content**:
+
+| Парамтер | Тип | Описание |
+| --- | --- | --- |
+| contentCategory | Строка | Допустимые значения: IMAGE (изображение), HTML (html-контент). |
+| contentUrl | Строка | Ссылка на изображение или html-страницу, до 512 символов |
+| actions | Массив объектов | Описание кнопок, отображаемых в сообщении |
+
+> Для передачи допускаются изображения размером до 1 Мб. Разрешены следующие типы: jpeg, png, gif, bmp. Рекомендуемое соотношение сторон — 2:1.
+> 
+
+Данные, передаваемые для каждой кнопки массива **actions**:
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| title | Строка | Надпись на кнопке, до 64 символов |
+| action | Строка | Идентификатор кнопки в приложении, до 64 символов. Определяет, какое действие в приложении произойдет при нажатии на кнопку. |
+| options | Строка | Дополнительные данные кнопки, до 300 символов |
+
+Пример отправки Push-сообщения, содержащего текст и заголовок:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "PUSH",
+		"data": {
+			"serviceNumber": "Example",
+			"title": "Hello!",
+      "text": "Hello, world!"
+		}
+	}
+}
+```
+
+Пример отправки Push-сообщения, содержащего текст, заголовок и изображение:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "PUSH",
+		"data": {
+			"serviceNumber": "Example",
+			"title": "Hello!",
+      "text": "Hello, world!",
+			"content": {
+        "contentCategory": "IMAGE",
+        "contentUrl": "https://partner.url/image.jpg"
+			}
+		}
+	}
+}
+```
+
+Пример отправки Push-сообщения, содержащего текст, заголовок и html-документ:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "PUSH",
+		"data": {
+			"serviceNumber": "Example",
+			"title": "Hello!",
+      "text": "Hello, world!",
+			"content": {
+        "contentCategory": "HTML",
+        "contentUrl": "https://partner.url/hello.html"
+			}
+		}
+	}
+}
+```
+
+Пример отправки Push-сообщения, содержащего текст, заголовок, изображение и две кнопки:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "PUSH",
+		"data": {
+			"serviceNumber": "Example",
+			"title": "Hello!",
+      "text": "Hello, world!",
+			"content": {
+        "contentCategory": "IMAGE",
+        "contentUrl": "https://partner.url/image.jpg",
+				"actions": [
+					{
+            "title": "Open",
+            "action": "open_link"
+          }, {
+            "title": "Hide",
+            "action": "save-and-close"
+          }
+				]
+			}
+		}
+	}
+}
+```
+
+### Отправка CardsMobile-сообщений
+
+Передача CardMobile-сообщений производится в приложение “Кошелек”, если компания-партнер зарегистрирована в данном приложении.
+
+Данные для CardsMobile-сообщений содержатся в следующих полях объекта **message/data**:
+
+| Параметр | Тип | Описание |
+| --- | --- | --- |
+| text | Строка | Текст Push-уведомления, до 150 символов |
+| title | Строка | Заголовок Push-уведомления, до 50 символов |
+| target | Строка | Куда будет осуществлен переход после нажатия на Push-уведомление. Возможные значения: card (на страницу карты), campaign (к рекламной акции), campaigns (к списку рекламных акций). По умолчанию: card. |
+| campaignId | Строка | Идентификатор акции для перехода, если в параметре target указано значение campaign. |
+| pushType | Строка | Тип трафика (по мнению партнера): PROMO — рекламный (по умолчанию), SERVICE — сервисный, TRANSACTION — транзакционный |
+
+Дополнительно для сообщения можно передать изображение в объекте **message/data/content**:
+
+| Парамтер | Тип | Описание |
+| --- | --- | --- |
+| contentCategory | Строка | Значение: IMAGE (допускается не предавать этот параметр) |
+| contentUrl | Строка | Ссылка на изображение, до 512 символов. Допустимые форматы: jpg и png. |
+| actions | Массив объектов | Описание кнопок, отображаемых в сообщении |
+
+Пример отправки CardsMobile-сообщения, содержащего текст и заголовок:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "CARDSMOBILE",
+		"data": {
+			"serviceNumber": "Example",
+			"title": "Hello!",
+      "text": "Hello, world!",
+			"target": "campaign",
+      "campaignId": "123",
+      "pushType": "PROMO"
+		}
+	}
+}
+```
+
+Пример отправки CardsMobile-сообщения, содержащего текст, заголовок и изображение:
+
+```json
+{
+	"login": "login",
+	"password": "password",
+	"destAddr": "71234567890",
+	"message": {
+		"type": "CARDSMOBILE",
+		"data": {
+			"serviceNumber": "Example",
+			"title": "Hello!",
+      "text": "Hello, world!",
+			"target": "campaign",
+      "campaignId": "123",
+      "pushType": "PROMO",
+			"content": {
+        "contentUrl": "https://partner.url/image.jpg"
+      }
+		}
+	}
+}
+```
